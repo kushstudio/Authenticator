@@ -18,6 +18,8 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtService jwtService;
     public User register(UserRequestDTO userRequest){
         Optional<User> existing = userRepository.findByEmail(userRequest.getEmail());
         if (existing.isPresent()) {
@@ -29,9 +31,9 @@ public class UserServiceImpl implements UserService{
         user.setRole(Role.GUEST);
         return userRepository.save(user);
     }
-    public User login(UserRequestDTO userRequest){
+    public String login(UserRequestDTO userRequest){
         Optional<User> existing = userRepository.findByEmail(userRequest.getEmail());
-        if(!existing.isPresent()) {
+        if(existing.isEmpty()) {
             throw new InvalidUserException("Please register");
         }
         String rawPass = userRequest.getPassword();
@@ -39,7 +41,7 @@ public class UserServiceImpl implements UserService{
         String storedHash = user.getPassword();
         if(passwordEncoder.matches(rawPass,storedHash))
         {
-            return user;
+            return jwtService.generateToken(user);
         }
         else {
             throw new InvalidUserException("Email/password does not match. Please try again");

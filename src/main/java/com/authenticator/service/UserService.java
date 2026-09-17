@@ -4,5 +4,5 @@ import com.authenticator.entity.User;
 
 public interface UserService {
     User register(UserRequestDTO userRequestDTO);
-    User login(UserRequestDTO userRequestDTO);
+    String login(UserRequestDTO userRequestDTO);
 }
